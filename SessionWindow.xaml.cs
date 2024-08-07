@@ -38,12 +38,22 @@ namespace JKLM
         {
             if ((bool)autoTypeCheckbox.IsChecked && chosenTextbox.Text.Length != 0)
             {
-                Keyboard.Type(chosenTextbox.Text, 50);
-                RemoveWord(chosenTextbox.Text);
-                inputTextbox.Clear();
-                outputBox.Clear();
-                chosenTextbox.Clear();
-                resultWords = null;
+                try
+                {
+                    float delay = float.Parse(delayTextbox.Text);
+                    Keyboard.Type(chosenTextbox.Text, delay);
+
+                    if ((bool)autoEnterCheckbox.IsChecked)
+                    {
+                        Keyboard.Type(Key.Enter);
+                    }
+                    RemoveWord(chosenTextbox.Text);
+                    inputTextbox.Clear();
+                    outputBox.Clear();
+                    chosenTextbox.Clear();
+                    resultWords = null;
+                }
+                catch { }
             }
         }
 
@@ -109,6 +119,19 @@ namespace JKLM
             return filteredWords[randomIndex];
         }
 
+        private void ChooseRandomWord()
+        {
+            if (resultWords == null) { return; }
+            try
+            {
+                int min = Int32.Parse(minWordLengthTextbox.Text);
+                int max = Int32.Parse(maxWordLengthTextbox.Text);
+
+                string rand = GetRandomWord(resultWords, min, max);
+                chosenTextbox.Text = rand;
+            }
+            catch { }
+        }
         private void CopyToClipboard(string word)
         {
             Clipboard.SetText(word);
@@ -158,8 +181,7 @@ namespace JKLM
                 outputBox.AppendText($"{string.Join(", ", entry.Value)}\n\n");
             }
 
-            string rand = GetRandomWord(res, 3, 31);
-            chosenTextbox.Text = rand;
+            ChooseRandomWord();
         }
 
         private void clearButton_Click(object sender, RoutedEventArgs e)
@@ -172,9 +194,7 @@ namespace JKLM
 
         private void shuffleButton_Click(object sender, RoutedEventArgs e)
         {
-            if (resultWords == null) { return; }
-            string rand = GetRandomWord(resultWords, 3, 31);
-            chosenTextbox.Text = rand;
+            ChooseRandomWord();
         }
 
         private void copyButton_Click(object sender, RoutedEventArgs e)
@@ -183,6 +203,20 @@ namespace JKLM
             CopyToClipboard(chosenTextbox.Text);
             RemoveWord(chosenTextbox.Text);
             clearButton_Click(sender, e);
+        }
+
+        private void inputTextbox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                solveButton_Click(sender, e);
+            }
+        }
+
+        private void NumberValidationTextBox(object sender, TextCompositionEventArgs e)
+        {
+            Regex regex = new Regex("[^0-9]+");
+            e.Handled = regex.IsMatch(e.Text);
         }
     }
 }
