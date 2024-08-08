@@ -13,9 +13,9 @@ This project is purely for educational purposes (learning .NET's WPF framework.)
 The true word list used by Bomb Party is private, to prevent cheating. As a result, I am using public dictionary word lists to serve as a source of words. Some of these words will not work on Bomb Party. 
 
 ## Installation
-TBD
+Install and extract the latest release [here](https://github.com/dannynotsmart/JKLM-Solver/releases). Since I cannot figure out how to package and deploy my application using an actual installer and packager at the moment, you have to keep everything in the folder or else it will break!
 
 ## Technical Details
 This program is made in C#, using .NET's WPF framework. The [Keyboard.cs](./Keyboard.cs) file was taken from [this gist](https://gist.github.com/DrustZ/640912b9d5cb745a3a56971c9bd58ac7).
 
-The word lists are stored in `...\AppData\JKLM\words`. The file formats are: `words_{length of words}.json`, and the JSON file consists of a array of words with that length. For example, `words_4.json` contains a array of only 4 letter words. It is easy to modify the word list by changing these files.
+The word lists are stored in the `words` folder. The file formats are: `words_{length of words}.json`, and the JSON file consists of a array of words with that length. For example, `words_4.json` contains a array of only 4 letter words. It is easy to modify the word list by changing these files.

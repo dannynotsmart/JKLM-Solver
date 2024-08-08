@@ -56,9 +56,9 @@ namespace JKLM
         {
             words.Clear();
 
-            string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            string wordsDirectory = Path.Combine(appDataPath, "JKLM", "words");
-            string[] files = Directory.GetFiles(wordsDirectory, "*.json");
+            // string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            // string wordsDirectory = Path.Combine(appDataPath, "JKLM", "words");
+            string[] files = Directory.GetFiles(Directory.GetCurrentDirectory() + "\\words", "*.json");
 
             foreach (string file in files)
             {
