@@ -15,6 +15,8 @@ The true word list used by Bomb Party is private, to prevent cheating. As a resu
 ## Installation
 Install and extract the latest release [here](https://github.com/dannynotsmart/JKLM-Solver/releases). Since I cannot figure out how to package and deploy my application using an actual installer and packager at the moment, you have to keep everything in the folder or else it will break!
 
+Also, you probably need to install a .NET runtime. **Windows will probably mark the .zip file as unsafe since I did not publish this right.** 
+
 ## Technical Details
 This program is made in C#, using .NET's WPF framework. The [Keyboard.cs](./Keyboard.cs) file was taken from [this gist](https://gist.github.com/DrustZ/640912b9d5cb745a3a56971c9bd58ac7).
 
