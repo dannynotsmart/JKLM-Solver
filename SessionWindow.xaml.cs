@@ -1,19 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
+﻿using System.IO;
 using System.Text.Json;
-using System.IO;
 using System.Text.RegularExpressions;
+using System.Windows;
+using System.Windows.Input;
 
 namespace JKLM
 {
@@ -22,18 +11,20 @@ namespace JKLM
     /// </summary>
     public partial class SessionWindow : Window
     {
-        Dictionary<int, List<string>> words = new Dictionary<int, List<string>>();
-        Dictionary<int, List<string>> resultWords = null;
-        List<string> usedWords = new List<string>();
+        private Dictionary<int, List<string>> words = new Dictionary<int, List<string>>();
+        private Dictionary<int, List<string>> resultWords = null;
+        private List<string> usedWords = new List<string>();
 
         public SessionWindow()
         {
             InitializeComponent();
             FillWords();
-
             this.Deactivated += SessionWindow_Deactivated;
         }
 
+        /// <summary>
+        /// Event handler for window deactivation.
+        /// </summary>
         private void SessionWindow_Deactivated(object? sender, EventArgs e)
         {
             if ((bool)autoTypeCheckbox.IsChecked && chosenTextbox.Text.Length != 0)
@@ -47,6 +38,7 @@ namespace JKLM
                     {
                         Keyboard.Type(Key.Enter);
                     }
+
                     RemoveWord(chosenTextbox.Text);
                     inputTextbox.Clear();
                     outputBox.Clear();
@@ -57,18 +49,20 @@ namespace JKLM
             }
         }
 
+        /// <summary>
+        /// Fills the words dictionary from JSON files.
+        /// </summary>
         private void FillWords()
         {
-            this.words.Clear();
+            words.Clear();
 
             string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            string wordsDirectory = System.IO.Path.Combine(appDataPath, "JKLM", "words");
-
+            string wordsDirectory = Path.Combine(appDataPath, "JKLM", "words");
             string[] files = Directory.GetFiles(wordsDirectory, "*.json");
 
             foreach (string file in files)
             {
-                string fileName = System.IO.Path.GetFileNameWithoutExtension(file);
+                string fileName = Path.GetFileNameWithoutExtension(file);
                 string lengthStr = fileName.Split('_')[1];
                 int length = int.Parse(lengthStr);
 
@@ -79,6 +73,9 @@ namespace JKLM
             }
         }
 
+        /// <summary>
+        /// Gets words containing the specified input string.
+        /// </summary>
         private Dictionary<int, List<string>> GetWordsContainingString(Dictionary<int, List<string>> words, string inputString)
         {
             Dictionary<int, List<string>> result = new Dictionary<int, List<string>>();
@@ -96,6 +93,9 @@ namespace JKLM
             return result;
         }
 
+        /// <summary>
+        /// Gets a random word from the specified word dictionary within the given length range.
+        /// </summary>
         private string GetRandomWord(Dictionary<int, List<string>> words, int minLength, int maxLength)
         {
             List<string> filteredWords = new List<string>();
@@ -119,24 +119,35 @@ namespace JKLM
             return filteredWords[randomIndex];
         }
 
+        /// <summary>
+        /// Chooses a random word from the result words.
+        /// </summary>
         private void ChooseRandomWord()
         {
             if (resultWords == null) { return; }
+
             try
             {
-                int min = Int32.Parse(minWordLengthTextbox.Text);
-                int max = Int32.Parse(maxWordLengthTextbox.Text);
+                int min = int.Parse(minWordLengthTextbox.Text);
+                int max = int.Parse(maxWordLengthTextbox.Text);
 
                 string rand = GetRandomWord(resultWords, min, max);
                 chosenTextbox.Text = rand;
             }
             catch { }
         }
+
+        /// <summary>
+        /// Copies the specified word to the clipboard.
+        /// </summary>
         private void CopyToClipboard(string word)
         {
             Clipboard.SetText(word);
         }
 
+        /// <summary>
+        /// Removes the specified word from the word list and adds it to the used words list.
+        /// </summary>
         private void RemoveWord(string word)
         {
             words[word.Length].Remove(word);
@@ -144,17 +155,26 @@ namespace JKLM
             usedWordsTextbox.AppendText(word + "\n");
         }
 
+        /// <summary>
+        /// Validates that the text input contains only alphabetic characters.
+        /// </summary>
         private void TextValidationTextBox(object sender, TextCompositionEventArgs e)
         {
             Regex regex = new Regex("[^a-zA-Z]+");
             e.Handled = regex.IsMatch(e.Text);
         }
 
+        /// <summary>
+        /// Processes the input word by removing spaces and trimming whitespace.
+        /// </summary>
         private string ProcessInput(string word)
         {
             return word.Replace(" ", "").Trim().ToLower();
         }
 
+        /// <summary>
+        /// Event handler for the solve button click event.
+        /// </summary>
         private void solveButton_Click(object sender, RoutedEventArgs e)
         {
             if (inputTextbox.Text.Length == 0) { return; }
@@ -168,11 +188,10 @@ namespace JKLM
             if (res.Count == 0)
             {
                 outputBox.AppendText($"There are no words found for: {inp}");
-                this.resultWords = null;
                 return;
             }
 
-            this.resultWords = res;
+            resultWords = res;
 
             outputBox.AppendText($"Results for: {inp}\n");
             foreach (var entry in res)
@@ -184,6 +203,9 @@ namespace JKLM
             ChooseRandomWord();
         }
 
+        /// <summary>
+        /// Event handler for the clear button click event.
+        /// </summary>
         private void clearButton_Click(object sender, RoutedEventArgs e)
         {
             inputTextbox.Clear();
@@ -192,11 +214,17 @@ namespace JKLM
             resultWords = null;
         }
 
+        /// <summary>
+        /// Event handler for the shuffle button click event.
+        /// </summary>
         private void shuffleButton_Click(object sender, RoutedEventArgs e)
         {
             ChooseRandomWord();
         }
 
+        /// <summary>
+        /// Event handler for the copy button click event.
+        /// </summary>
         private void copyButton_Click(object sender, RoutedEventArgs e)
         {
             if (chosenTextbox.Text.Length == 0) { return; }
@@ -205,6 +233,9 @@ namespace JKLM
             clearButton_Click(sender, e);
         }
 
+        /// <summary>
+        /// Event handler for the input textbox key down event.
+        /// </summary>
         private void inputTextbox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)
@@ -213,6 +244,9 @@ namespace JKLM
             }
         }
 
+        /// <summary>
+        /// Validates that the text input contains only numeric characters.
+        /// </summary>
         private void NumberValidationTextBox(object sender, TextCompositionEventArgs e)
         {
             Regex regex = new Regex("[^0-9]+");
